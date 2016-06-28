@@ -49,5 +49,18 @@ luhn = (== 0) . (`mod` 10) . sumDigits . doubleEveryOther . toRevDigits
 type Peg = String
 type Move = (Peg, Peg)
 
+-- This function takes an integer of num of levels and three pegs, the first
+-- is the starting peg and the second is the target peg
 hanoi :: Integer -> Peg -> Peg -> Peg -> [Move]
-hanoi = undefined
+hanoi 0 _ _ _ = []
+hanoi n a b c = move (n - 1) a c b ++ moveTop a b ++ move (n - 1) c b a
+
+-- This function moves n levels from the first to the second peg.
+move :: Integer -> Peg -> Peg -> Peg -> [Move]
+move 0 _ _ _ = []
+move 1 s t _ = [(s, t)]
+move n s t c = hanoi n s t c
+
+-- This funciton simply moves the first level of the tower.
+moveTop :: Peg -> Peg -> [Move]
+moveTop a b = [(a, b)]

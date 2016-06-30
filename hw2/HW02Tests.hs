@@ -64,12 +64,64 @@ ex5Tests = [ testF2 "filterCodes test" filterCodes
 -- Exercise 6 -----------------------------------------
 
 ex6Tests :: [Test]
-ex6Tests = []
+ex6Tests = [ testF1 "filterCodes test" allCodes
+             [
+               (0, [[]]),
+               (1, [[Red], [Green], [Blue], [Yellow], [Orange], [Purple]]),
+               (2, [
+                     [Red,Red],
+                     [Red,Green],
+                     [Red,Blue],
+                     [Red,Yellow],
+                     [Red,Orange],
+                     [Red,Purple],
+                     [Green,Red],
+                     [Green,Green],
+                     [Green,Blue],
+                     [Green,Yellow],
+                     [Green,Orange],
+                     [Green,Purple],
+                     [Blue,Red],
+                     [Blue,Green],
+                     [Blue,Blue],
+                     [Blue,Yellow],
+                     [Blue,Orange],
+                     [Blue,Purple],
+                     [Yellow,Red],
+                     [Yellow,Green],
+                     [Yellow,Blue],
+                     [Yellow,Yellow],
+                     [Yellow,Orange],
+                     [Yellow,Purple],
+                     [Orange,Red],
+                     [Orange,Green],
+                     [Orange,Blue],
+                     [Orange,Yellow],
+                     [Orange,Orange],
+                     [Orange,Purple],
+                     [Purple,Red],
+                     [Purple,Green],
+                     [Purple,Blue],
+                     [Purple,Yellow],
+                     [Purple,Orange],
+                     [Purple,Purple]
+                   ]
+               )
+             ]
+           ]
 
 -- Exercise 7 -----------------------------------------
 
 ex7Tests :: [Test]
-ex7Tests = []
+ex7Tests = [ testF1 "solve test" solve
+             [([Yellow, Orange], [
+                                   Move [Red, Red] 0 0,
+                                   Move [Green, Green] 0 0,
+                                   Move [Blue, Blue] 0 0,
+                                   Move [Yellow, Yellow] 1 0,
+                                   Move [Yellow, Orange] 2 0
+                                 ])]
+           ]
 
 -- Bonus ----------------------------------------------
 

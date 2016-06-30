@@ -61,12 +61,23 @@ filterCodes m cs = filter (isConsistent m) cs
 -- Exercise 6 -----------------------------------------
 
 allCodes :: Int -> [Code]
-allCodes = undefined
+allCodes 0 = [[]]
+allCodes n = [ color:c | color <- colors, c <- allCodes (n-1) ]
 
 -- Exercise 7 -----------------------------------------
 
+-- 1. Get all possible move
+-- 2. Get the first as the guess
+-- 3. Use the guess to filter the list to contain only consistent ones
+-- 4. Repeat from 2, using the filtered list as the input
+
+pickGuess :: Code -> [Code] -> [Move]
+pickGuess _ [] = []
+pickGuess s (x:xs) = let move = getMove s x in
+                         [move] ++ (pickGuess s $ filterCodes move xs)
+
 solve :: Code -> [Move]
-solve = undefined
+solve sec = pickGuess sec $ allCodes $ length sec
 
 -- Bonus ----------------------------------------------
 

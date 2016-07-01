@@ -7,14 +7,14 @@ data Expression =
   deriving (Show, Eq)
 
 -- Binary (2-input) operators
-data Bop = 
-    Plus     
-  | Minus    
-  | Times    
-  | Divide   
+data Bop =
+    Plus
+  | Minus
+  | Times
+  | Divide
   | Gt
-  | Ge       
-  | Lt  
+  | Ge
+  | Lt
   | Le
   | Eql
   deriving (Show, Eq)
@@ -23,9 +23,9 @@ data Statement =
     Assign   String     Expression
   | Incr     String
   | If       Expression Statement  Statement
-  | While    Expression Statement       
+  | While    Expression Statement
   | For      Statement  Expression Statement Statement
-  | Sequence Statement  Statement        
+  | Sequence Statement  Statement
   | Skip
   deriving (Show, Eq)
 
@@ -33,16 +33,31 @@ type State = String -> Int
 
 -- Exercise 1 -----------------------------------------
 
+-- This one uses a function to carry states, magic!
 extend :: State -> String -> Int -> State
-extend = undefined
+extend s name n = (\x -> if x == name then n else s x)
 
 empty :: State
-empty = undefined
+empty _ = 0
 
 -- Exercise 2 -----------------------------------------
 
+b2i :: Bool -> Int
+b2i b = if b then 1 else 0
+
 evalE :: State -> Expression -> Int
-evalE = undefined
+evalE st (Var s) = st s
+evalE _ (Val n) = n
+evalE st (Op lhs bop rhs) = case bop of
+  Plus -> evalE st lhs + evalE st rhs
+  Minus -> evalE st lhs - evalE st rhs
+  Times -> evalE st lhs * evalE st rhs
+  Divide -> evalE st lhs `div` evalE st rhs
+  Gt -> b2i $ evalE st lhs > evalE st rhs
+  Ge -> b2i $ evalE st lhs >= evalE st rhs
+  Lt -> b2i $ evalE st lhs < evalE st rhs
+  Le -> b2i $ evalE st lhs <= evalE st rhs
+  Eql -> b2i $ evalE st lhs == evalE st rhs
 
 -- Exercise 3 -----------------------------------------
 
@@ -54,16 +69,28 @@ data DietStatement = DAssign String Expression
                      deriving (Show, Eq)
 
 desugar :: Statement -> DietStatement
-desugar = undefined
-
+desugar (Assign name e) = DAssign name e
+desugar (Incr name) = DAssign name (Op (Var name) Plus (Val 1))
+desugar (If e st st') = DIf e (desugar st) (desugar st')
+desugar (While e st) = DWhile e $ desugar st
+desugar (For st e st' st'') = DSequence (desugar st) (DWhile e (DSequence (desugar st'') (desugar st')))
+desugar (Sequence st st') = DSequence (desugar st') (desugar st')
+desugar Skip = DSkip
 
 -- Exercise 4 -----------------------------------------
 
+i2b :: Int -> Bool
+i2b n = if n == 1 then True else False
+
 evalSimple :: State -> DietStatement -> State
-evalSimple = undefined
+evalSimple s (DAssign name e) = extend s name $ evalE s e
+evalSimple s (DIf e st st') = if i2b $ evalE s e then evalSimple s st else evalSimple s st'
+evalSimple s (DWhile e st) = if i2b $ evalE s e then evalSimple s (DSequence st (DWhile e st)) else evalSimple s DSkip
+evalSimple s (DSequence st st') = evalSimple (evalSimple s st) st'
+evalSimple s DSkip = s
 
 run :: State -> Statement -> State
-run = undefined
+run s st = evalSimple s $ desugar st
 
 -- Programs -------------------------------------------
 

@@ -109,12 +109,11 @@ updatePayee (Transaction { to = name, amount = amt }) = Map.update f name
 
 -- Recover the transactions
 undoTs :: Map String Integer -> [TId] -> [Transaction]
-undoTs m tids = let flows = (sortFlows . separate $ Map.toList m) in
-                    case flows of
-                        ([], _) -> []
-                        (_, []) -> []
-                        fl -> let ts = compensate fl tids in
-                                  ts ++ undoTs (L.foldr update m ts) (drop (length ts) tids)
+undoTs m tids = let ts = compensate (sortFlows . separate $ Map.toList m) (tids) in
+                    case length ts of
+                        0 -> ts
+                        _ -> ts ++ undoTs (L.foldr update m ts) (drop (length ts) tids)
+                                  
                     
 
 -- Exercise 8 -----------------------------------------
@@ -138,7 +137,6 @@ doEverything dog1 dog2 trans vict fids out = do
         Nothing  -> error "No ids"
         Just ids -> do
           let flow = getFlow ts
-          putStrLn $ show $ (sortFlows . separate) $ Map.toList (L.foldr update flow $ compensate ((sortFlows . separate) $ Map.toList flow) (repeat ""))
           writeJSON out (undoTs flow ids)
           return (getCriminal flow)
 

@@ -1,10 +1,9 @@
-{-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wall -fno-warn-missing-methods #-}
 {-# LANGUAGE BangPatterns #-}
 
 module HW06 where
 
 import Data.List
-import Data.Functor
 
 -- Exercise 1 -----------------------------------------
 
@@ -89,9 +88,22 @@ minMax xs = foldl' step (Just (maxBound, minBound)) xs
           step _ _ = Nothing
 
 main :: IO ()
-main = print $ minMax $ sTake 1000000 $ rand 7666532
+-- main = print $ minMax $ sTake 1000000 $ rand 7666532
+main = print $ fastFib 1000000
 
 -- Exercise 10 ----------------------------------------
 
+data Matrix = M Integer Integer Integer Integer
+    deriving Show
+
+instance Num Matrix where
+    (M a b c d) * (M a' b' c' d')
+        = M (a*a'+b*c') (a*b'+b*d') (c*a'+d*c') (c*b'+d*d')
+
 fastFib :: Int -> Integer
-fastFib = undefined
+fastFib 0 = 0
+fastFib 1 = 1
+fastFib n
+    | n < 0 = error "no negative input!"
+    | otherwise = case (M 1 1 1 0) ^ n of
+          (M _ fn _ _) -> fn

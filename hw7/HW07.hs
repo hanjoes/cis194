@@ -38,20 +38,30 @@ getElts li v = mapM f li
 type Rnd a = Rand StdGen a
 
 randomElt :: Vector a -> Rnd (Maybe a)
-randomElt v = getRandomR (0, length v)
+randomElt v = let len = length v in
+    case len of
+        0 -> return Nothing
+        _ -> do i <- getRandomR (0, len)
+                return $ v !? i
 
 -- Exercise 4 -----------------------------------------
 
 randomVec :: Random a => Int -> Rnd (Vector a)
-randomVec = undefined
+randomVec n = liftM V.fromList $ replicateM n getRandom
 
 randomVecR :: Random a => Int -> (a, a) -> Rnd (Vector a)
-randomVecR = undefined
+randomVecR n r = liftM V.fromList $ replicateM n $ getRandomR r
 
 -- Exercise 5 -----------------------------------------
 
 shuffle :: Vector a -> Rnd (Vector a)
-shuffle = undefined
+shuffle v = do
+    let range = reverse [1..(length v - 1)]
+    l <- mapM shuffleI range
+    return $ v // l
+    where shuffleI i = do
+              j <- getRandomR (0, i)
+              return (i, v ! j)
 
 -- Exercise 6 -----------------------------------------
 

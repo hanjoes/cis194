@@ -18,25 +18,27 @@ import qualified Data.Vector as V
 -- Exercise 1 -----------------------------------------
 
 liftM :: Monad m => (a -> b) -> m a -> m b
-liftM = undefined
+liftM = fmap
 
 swapV :: Int -> Int -> Vector a -> Maybe (Vector a)
-swapV = undefined
+swapV i1 i2 v = liftM2 swapV' (v !? i1) (v !? i2)
+    where swapV' e1 e2 = v // [(i1, e2),(i2, e1)]
 
 -- Exercise 2 -----------------------------------------
 
 mapM :: Monad m => (a -> m b) -> [a] -> m [b]
-mapM = undefined
+mapM f = sequence . map f
 
 getElts :: [Int] -> Vector a -> Maybe [a]
-getElts = undefined
+getElts li v = mapM f li
+    where f i = v !? i
 
 -- Exercise 3 -----------------------------------------
 
 type Rnd a = Rand StdGen a
 
 randomElt :: Vector a -> Rnd (Maybe a)
-randomElt = undefined
+randomElt v = getRandomR (0, length v)
 
 -- Exercise 4 -----------------------------------------
 

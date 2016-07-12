@@ -8,6 +8,7 @@ import Cards
 import Control.Monad hiding (mapM, liftM)
 import Control.Monad.Random
 import Data.Functor
+import Data.Function
 import Data.Monoid
 import Data.Vector (Vector, cons, (!), (!?), (//))
 import System.Random
@@ -66,7 +67,13 @@ shuffle v = do
 -- Exercise 6 -----------------------------------------
 
 partitionAt :: Ord a => Vector a -> Int -> (Vector a, a, Vector a)
-partitionAt = undefined
+partitionAt v i = let vs = V.splitAt i v 
+                      v1 = fst vs
+                      v2 = V.tail $ snd vs
+                      p = v ! i in
+                      (on (V.++) (V.filter (<p)) v1 v2,
+                       p,
+                       on (V.++) (V.filter (>=p)) v1 v2)
 
 -- Exercise 7 -----------------------------------------
 
@@ -77,18 +84,39 @@ quicksort (x:xs) = quicksort [ y | y <- xs, y < x ]
                    <> (x : quicksort [ y | y <- xs, y >= x ])
 
 qsort :: Ord a => Vector a -> Vector a
-qsort = undefined
+qsort v = case v !? 0 of
+    Nothing -> v
+    Just p -> let xs = V.tail v in
+                  qsort [ y | y <- xs, y < p ]
+                  <> (cons p $ qsort [ y | y <- xs, y >= p ])
 
 -- Exercise 8 -----------------------------------------
 
 qsortR :: Ord a => Vector a -> Rnd (Vector a)
-qsortR = undefined
+qsortR v = case length v of
+    0 -> return V.empty
+    _ -> do
+        i <- getRandomR (0, length v - 1)
+        let (p1, p, p2) = partitionAt v i
+        ps1 <- qsortR p1
+        ps2 <- qsortR p2
+        return $ ps1 <> cons p ps2
 
 -- Exercise 9 -----------------------------------------
 
 -- Selection
 select :: Ord a => Int -> Vector a -> Rnd (Maybe a)
-select = undefined
+select r v
+    | r > (length v - 1) || r < 0 = return Nothing
+    | otherwise = do
+          i <- getRandomR (0, length v - 1)
+          let (p1, p, p2) = partitionAt v i
+          let len = length p1
+          case r `compare` len of
+              EQ -> return $ Just p
+              LT -> select r p1
+              GT -> select (r - len - 1) p2
+              
 
 -- Exercise 10 ----------------------------------------
 

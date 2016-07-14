@@ -59,10 +59,13 @@ shuffle :: Vector a -> Rnd (Vector a)
 shuffle v = do
     let range = reverse [1..(length v - 1)]
     l <- mapM shuffleI range
-    return $ v // l
+    foldM f v l
     where shuffleI i = do
               j <- getRandomR (0, i)
-              return (i, v ! j)
+              return (i, j)
+          f acc (i, j) = case swapV i j acc of
+              Just newVec -> return newVec
+              Nothing -> return acc
 
 -- Exercise 6 -----------------------------------------
 
@@ -121,20 +124,31 @@ select r v
 -- Exercise 10 ----------------------------------------
 
 allCards :: Deck
-allCards = undefined
+allCards = do
+    s <- suits
+    l <- labels
+    return $ Card l s
 
 newDeck :: Rnd Deck
-newDeck =  undefined
+newDeck =  shuffle allCards
 
 -- Exercise 11 ----------------------------------------
 
 nextCard :: Deck -> Maybe (Card, Deck)
-nextCard = undefined
+nextCard dk = do
+    let len = length dk
+    guard $ len > 0
+    return $ (V.head dk, V.tail dk)
 
 -- Exercise 12 ----------------------------------------
 
 getCards :: Int -> Deck -> Maybe ([Card], Deck)
-getCards = undefined
+getCards 0 dk = Just ([], dk)
+getCards n dk = do
+    (c, dk') <- nextCard dk
+    (cs, dk'') <- getCards (n - 1) $ dk' 
+    return $ (c:cs, dk'')
+    
 
 -- Exercise 13 ----------------------------------------
 

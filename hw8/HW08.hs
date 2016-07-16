@@ -89,7 +89,10 @@ composition (Right p_imp_r) p = Right $ p_imp_r p
 -- Exercise 3 -----------------------------------------
 
 transposition :: (p -> q) <-> (Not q -> Not p)
-transposition = admit
+transposition = Conj dir1 dir2
+    where dir1 = modus_tollens
+          dir2 not_q_not_p p = let _ = modus_tollens not_q_not_p $ wnegate p in admit 
+              where wnegate p not_p = not_p p 
 
 -- Exercise 4 -----------------------------------------
 

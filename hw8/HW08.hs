@@ -97,7 +97,15 @@ transposition = Conj dir1 dir2
 -- Exercise 4 -----------------------------------------
 
 de_morgan :: Not (p \/ q) <-> (Not p /\ Not q)
-de_morgan = admit
+de_morgan = Conj dir1 dir2
+          -- dir1, ((p \/ q) -> False) -> (p -> False) /\ (q -> False)
+          -- inhabit:   not_porq
+          -- thus two lambda when passing variables p or q
+          -- we can construct Left p and Right q and feed to
+          -- not_porq
+    where dir1 not_porq = Conj (\p -> not_porq $ Left p) (\q -> not_porq $ Right q)
+          dir2 (Conj not_p _) (Left p) = not_p p
+          dir2 (Conj _ not_q) (Right q) = not_q q
 
 -- Natural Numbers ------------------------------------
 
